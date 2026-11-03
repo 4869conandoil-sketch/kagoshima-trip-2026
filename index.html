@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>鹿児島 薩摩ドライブ旅しおり</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            satsuma: {
+              red: '#c23b22',       // 桜島・火山・情熱の茜色
+              deepRed: '#962312',
+              ember: '#ea580c',     // 溶岩・柑橘（桜島小みかん）
+              navy: '#1a365d',      // 錦江湾の深い海
+              gold: '#d97706',      // 薩摩切子の琥珀
+              bg: '#fcf8f5',        // やわらかな温かみのある地色
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Meiryo", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: env(safe-area-inset-bottom, 80px);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* モーダルのスライドアップ演出 */
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-[#f7f2ed] text-slate-800 antialiased min-h-screen">
+
+  <!-- ヘッダー（鹿児島・桜島テーマ ＋ tabiori ver1/ver2 直行リンク） -->
+  <header class="sticky top-0 z-30 bg-gradient-to-r from-satsuma-deepRed to-satsuma-red text-white px-3.5 py-2.5 shadow-md flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-lg shadow-inner shrink-0">
+        🌋
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[10px] tracking-wider font-bold uppercase text-amber-200">2026.12.03 - 12.04 (3名)</span>
+        </div>
+        <h1 class="text-sm font-extrabold tracking-tight leading-tight">鹿児島・桜島・指宿 探訪しおり</h1>
+      </div>
+    </div>
+    
+    <!-- tabiori アプリ連携リンク (ver1 / ver2) -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      <a href="https://tabiori.com/ja/mypage/plans/GgKqMLM3xxT3mxwuKATZ/schedule/" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-1 text-[10px] font-bold bg-white/90 text-satsuma-deepRed px-2.5 py-1.5 rounded-full shadow-xs active:scale-95 transition-transform">
+        <i class="ph-bold ph-calendar text-xs"></i>
+        <span>ver1</span>
+      </a>
+      <a href="https://tabiori.com/ja/mypage/plans/fEZsAGNDWiYYSMcedobG/schedule/" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-1 text-[10px] font-bold bg-amber-300 text-slate-900 px-2.5 py-1.5 rounded-full shadow-xs active:scale-95 transition-transform">
+        <i class="ph-fill ph-star text-xs text-satsuma-red"></i>
+        <span>ver2</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- サブバー：最重要アラートバナー -->
+  <div class="bg-satsuma-navy text-sky-100 text-[11px] px-3.5 py-1.5 flex items-center justify-between font-medium">
+    <span class="flex items-center gap-1.5 truncate">
+      <i class="ph-fill ph-warning-circle text-amber-400 text-xs shrink-0"></i>
+      <span class="truncate">Day1最重要: 16:00道の駅発 → 16:25桜島フェリー乗船</span>
+    </span>
+    <span class="text-[10px] text-amber-300 font-bold shrink-0 ml-2">SNA71 / 80</span>
+  </div>
+
+  <!-- メインコンテンツ領域 -->
+  <main class="max-w-md mx-auto px-3.5 py-4 space-y-4 pb-24" id="content-container">
+    <!-- JS描画エリア -->
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 詳細表示ボトムシート/モーダル (タップでヌルッと立ち上がる) -->
+  <!-- ======================================================== -->
+  <div id="detail-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-end justify-center">
+    <div id="modal-box" class="bg-white w-full max-w-md rounded-t-3xl max-h-[88vh] overflow-y-auto hide-scrollbar shadow-2xl p-5 space-y-4 animate-slide-up">
+      <!-- 閉じるバー -->
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+        <div class="flex items-center gap-1.5">
+          <span id="modal-day-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-white">Day1</span>
+          <span id="modal-category" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-satsuma-red border border-red-100">
+            観光
+          </span>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- 画像とタイトル -->
+      <div>
+        <div class="relative">
+          <img id="modal-image" src="" alt="" class="w-full h-44 object-cover rounded-2xl shadow-sm mb-3">
+          <span id="modal-time-badge" class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg"></span>
+        </div>
+        <h2 id="modal-title" class="text-lg font-black text-slate-900 leading-snug"></h2>
+        <p id="modal-address" class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+          <i class="ph-bold ph-map-pin text-satsuma-red shrink-0"></i>
+          <span></span>
+        </p>
+        <p id="modal-parking" class="text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 mt-2 flex items-start gap-1.5">
+          <i class="ph-fill ph-car text-emerald-600 text-sm shrink-0 mt-0.5"></i>
+          <span></span>
+        </p>
+      </div>
+
+      <!-- カーナビ・マップ連携マルチボタン群 -->
+      <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+        <div class="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+          <span class="flex items-center gap-1">
+            <i class="ph-fill ph-navigation-arrow text-satsuma-red"></i>
+            <span>ナビアプリで開く（目的地設定）</span>
+          </span>
+          <span id="modal-phone-btn"></span>
+        </div>
+        <div class="grid grid-cols-3 gap-2" id="modal-nav-buttons">
+          <!-- JSでGoogleマップ/Yahoo!カーナビ/Appleマップリンクを挿入 -->
+        </div>
+      </div>
+
+      <!-- 説明文・見どころ -->
+      <div class="space-y-1">
+        <div class="text-xs font-bold text-slate-700 flex items-center gap-1">
+          <i class="ph-fill ph-sparkle text-amber-500"></i>
+          <span>スケジュール要点・見どころ</span>
+        </div>
+        <p id="modal-description" class="text-xs text-slate-600 leading-relaxed bg-amber-50/70 p-3 rounded-xl border-l-4 border-amber-500 whitespace-pre-line"></p>
+      </div>
+
+      <!-- 買いたいもの・優先ミッションチェック -->
+      <div id="modal-checklist-container" class="space-y-1.5">
+        <!-- JS挿入 -->
+      </div>
+
+      <!-- YouTube動画カード（サムネイル・タイトル付き・アプリ直行） -->
+      <div id="modal-youtube-container" class="space-y-2">
+        <!-- JS挿入 -->
+      </div>
+
+      <!-- 関連Webリンク -->
+      <div id="modal-links-container" class="space-y-1.5 pb-4">
+        <!-- JS挿入 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 下部固定ボトムナビゲーション -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-amber-900/10 max-w-md mx-auto shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+    <div class="flex items-center justify-around py-1.5 px-1" id="nav-tabs">
+      <button onclick="switchTab('spots')" id="tab-btn-spots" class="flex-1 flex flex-col items-center py-1 text-satsuma-red font-bold transition-colors">
+        <i class="ph-duotone ph-mountains text-2xl mb-0.5"></i>
+        <span class="text-[10px]">名所・スポット</span>
+      </button>
+
+      <button onclick="switchTab('drive')" id="tab-btn-drive" class="flex-1 flex flex-col items-center py-1 text-slate-400 font-medium transition-colors">
+        <i class="ph-duotone ph-car-profile text-2xl mb-0.5"></i>
+        <span class="text-[10px]">🚗 移動・レンタカー</span>
+      </button>
+
+      <button onclick="switchTab('food')" id="tab-btn-food" class="flex-1 flex flex-col items-center py-1 text-slate-400 font-medium transition-colors">
+        <i class="ph-duotone ph-fork-knife text-2xl mb-0.5"></i>
+        <span class="text-[10px]">食事・宿・温泉</span>
+      </button>
+
+      <button onclick="switchTab('souvenir')" id="tab-btn-souvenir" class="flex-1 flex flex-col items-center py-1 text-slate-400 font-medium transition-colors">
+        <i class="ph-duotone ph-gift text-2xl mb-0.5"></i>
+        <span class="text-[10px]">買い物・土産</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 鹿児島旅行データ管理（2026/12/03-12/04 完全反映版） -->
+  <!-- ========================================== -->
+  <script>
+    const KAGOSHIMA_DATA = {
+      // 1日目＆2日目の全観光スポット（サムネイルグリッド）
+      spots: [
+        // ==================== 1日目 (12/03 木) ====================
+        {
+          id: "spot-kirishima",
+          day: 1,
+          timePlan: "10:55〜11:45 (50分)",
+          name: "霧島神宮",
+          subtitle: "神楽殿・御神木・さざれ石を見学",
+          category: "神社・国宝",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Kirishima-Jingu_Front.jpg/800px-Kirishima-Jingu_Front.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1590559899731-a372a1464979?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県霧島市霧島田口2608-5",
+          lat: "31.8580",
+          lng: "130.8697",
+          parking: "無料駐車場（約500台・駐車料金0円）。レンタカー店から国道223号方面で約40分。",
+          description: "1日目の最初の目的地。参拝と境内撮影を50分確保。\n参拝後は国道223号で国分方面へ下り、国道220号→国道224号経由で桜島の黒神埋没鳥居へ向かいます（移動目安90分）。",
+          youtubeList: [],
+          checklist: [
+            { id: "kr1", text: "本殿・神楽殿の参拝と記念撮影" },
+            { id: "kr2", text: "御神木（樹齢800年大杉）とさざれ石を見学" }
+          ],
+          links: [
+            { title: "霧島神宮 公式サイト", url: "https://kirishimajingu.or.jp" }
+          ]
+        },
+        {
+          id: "spot-kurokami",
+          day: 1,
+          timePlan: "13:15〜13:30 (15分)",
+          name: "黒神埋没鳥居【必須】",
+          subtitle: "大正大噴火の威力を伝える埋没鳥居",
+          category: "桜島・史跡",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Kurokami_buried_shrine_gate_2.jpg/800px-Kurokami_buried_shrine_gate_2.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市黒神町647",
+          lat: "31.5829",
+          lng: "130.7038",
+          parking: "黒神埋没鳥居付近の無料駐車場区画を利用（見学・駐車含め15分枠）。",
+          description: "1914年（大正3年）の大噴火で、軽石や火山灰に埋もれ上部だけが残った腹五社神社の鳥居。周辺の史跡を手早く撮影し、国道224号で南西の有村溶岩展望所へ（車で約10分）。",
+          youtubeList: [],
+          checklist: [
+            { id: "kk1", text: "埋没鳥居とアコウの木の写真を撮影（滞在15分厳守）" }
+          ],
+          links: [
+            { title: "みんなの桜島 黒神埋没鳥居", url: "https://www.sakurajima.gr.jp/tourism/000336.html" }
+          ]
+        },
+        {
+          id: "spot-arimura",
+          day: 1,
+          timePlan: "13:45〜14:10 (25分)",
+          name: "有村溶岩展望所【必須】",
+          subtitle: "溶岩原と桜島の山肌を写真・動画撮影",
+          category: "桜島・絶景",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Arimura_Lava_Observatory_Sakurajima_2015.jpg/800px-Arimura_Lava_Observatory_Sakurajima_2015.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市有村町952",
+          lat: "31.5542",
+          lng: "130.6716",
+          parking: "無料駐車場（約30台）。一般道0円。",
+          description: "大正溶岩原の上に設けられた展望所。遊歩道全周は回らず、主要な展望ポイントを優先して25分間で写真と動画をしっかり撮影します。終了後は湯之平展望所へ（車30分）。",
+          youtubeList: [],
+          checklist: [
+            { id: "ar1", text: "溶岩原と荒々しい桜島の山肌を写真・動画で撮影" }
+          ],
+          links: [
+            { title: "みんなの桜島 有村溶岩展望所", url: "https://www.sakurajima.gr.jp/tourism/000340.html" }
+          ]
+        },
+        {
+          id: "spot-yunohira",
+          day: 1,
+          timePlan: "14:40〜15:05 (25分)",
+          name: "湯之平展望所【必須】",
+          subtitle: "標高373mから山肌・錦江湾・市街地を撮影",
+          category: "桜島・最高地点",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Sakurajima_from_Yunohira_Observatory.JPG/800px-Sakurajima_from_Yunohira_Observatory.JPG",
+          fallbackImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市桜島小池町1025",
+          lat: "31.5901",
+          lng: "130.6358",
+          parking: "無料駐車場あり。赤水・烏島など追加寄り道は原則省略して直行。",
+          description: "桜島で一般人が入れる最高地点（標高373m）。桜島の迫力ある北岳山肌、錦江湾、鹿児島市街地を複数方向から構図を変えて写真・動画で記録します。",
+          youtubeList: [],
+          checklist: [
+            { id: "yn1", text: "山肌側と錦江湾・市街地側の両アングルから撮影" },
+            { id: "yn2", text: "石垣のハート型溶岩ストーンを探す" }
+          ],
+          links: [
+            { title: "みんなの桜島 湯之平展望所", url: "https://www.sakurajima.gr.jp/tourism/000338.html" }
+          ]
+        },
+        {
+          id: "spot-michinoeki-sakurajima",
+          day: 1,
+          timePlan: "15:20〜16:00 (40分)",
+          name: "道の駅 桜島 火の島めぐみ館",
+          subtitle: "買い物40分確保（16:00出発厳守！）",
+          category: "桜島・買い物",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Michinoeki_Sakurajima_2022.jpg/800px-Michinoeki_Sakurajima_2022.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市桜島横山町1722-48",
+          lat: "31.5917",
+          lng: "130.6006",
+          parking: "無料駐車場あり。桜島港フェリーターミナルまで車で約5分。",
+          description: "直売所は9:00〜17:00営業。桜島小みかん・桜島大根関連商品・お土産選びに40分確保。\n【超重要】16:25発の桜島フェリーに乗るため、16:00には必ずここを出発して乗船待機レーンへ向かいます。",
+          youtubeList: [],
+          checklist: [
+            { id: "ms1", text: "桜島小みかん・桜島大根関連のお土産を購入" },
+            { id: "ms2", text: "【厳守】16:00ぴったりに桜島港へ向けて出発" }
+          ],
+          links: [
+            { title: "道の駅 桜島 火の島めぐみ館 公式", url: "http://www.megumikan.jp/" }
+          ]
+        },
+
+        // ==================== 2日目 (12/04 金) ====================
+        {
+          id: "spot-nagasakibana",
+          day: 2,
+          timePlan: "08:50〜09:05 (15分)",
+          name: "長崎鼻・龍宮神社",
+          subtitle: "薩摩半島最南端の岬と浦島太郎伝説の社",
+          category: "絶景・神社",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Ryugu_Shrine_Nagasakibana_2020.jpg/800px-Ryugu_Shrine_Nagasakibana_2020.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県指宿市山川岡児ケ水長崎鼻",
+          lat: "31.1558",
+          lng: "130.5872",
+          parking: "ホテルから国道226号等で約20分。現地の駐車場利用条件を確認。",
+          description: "8:30に指宿フェニックスホテルを出発し最初の立ち寄り地。長崎鼻の景色と赤い社殿が鮮やかな龍宮神社を見学・撮影します。移動・参拝込み15分枠のため手早く回るのがコツ。",
+          youtubeList: [
+            { 
+              id: "mlk8q_bmUmo", 
+              title: "【鹿児島観光】指宿市 龍宮神社＆長崎鼻の絶景", 
+              tag: "公式・現地レポート", 
+              note: "朱色の龍宮神社と開聞岳、海に突き出た薩摩半島最南端の風景" 
+            }
+          ],
+          checklist: [
+            { id: "ng1", text: "龍宮神社の朱色の社殿と開聞岳の風景を撮影" }
+          ],
+          links: [
+            { title: "いぶすき観光ネット 長崎鼻", url: "https://www.ibusuki.or.jp/tourism/view/nagasakibana/" }
+          ]
+        },
+        {
+          id: "spot-nishioyama",
+          day: 2,
+          timePlan: "09:15〜09:30 (15分)",
+          name: "西大山駅（JR日本最南端の駅）",
+          subtitle: "開聞岳を望むホームと幸せの黄色いポスト",
+          category: "人気フォトスポット",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Nishi-Oyama_Station.jpg/800px-Nishi-Oyama_Station.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県指宿市山川大山602",
+          lat: "31.1904",
+          lng: "130.5433",
+          parking: "駅前の無料駐車場を利用（※路上駐車は厳禁）。長崎鼻から車で約10分。",
+          description: "撮影枠は約15分と短いため、①「JR日本最南端の駅」標柱＋開聞岳（薩摩富士）、②駅前の「幸せを届ける黄色いポスト」と「幸せの鐘」を最優先で撮影！\n余裕があれば隣接「かいもん市場 久太郎」で到着証明書（110円）も。",
+          youtubeList: [
+            { 
+              id: "rV1KyIPJPyA", 
+              title: "西大山駅〜JR日本最南端の駅 開聞岳ビューと黄色いポスト", 
+              tag: "絶景ビュー解説", 
+              note: "ホーム越しに見る薩摩富士（開聞岳）と黄色いポストの撮影ポイント" 
+            },
+            { 
+              id: "gOjMHWl4Umc", 
+              title: "JR最南端 西大山駅現地レポート＆かいもん市場久太郎", 
+              tag: "周辺・お土産", 
+              note: "駅前の雰囲気と久太郎で販売している到着証明書（110円）の案内" 
+            }
+          ],
+          checklist: [
+            { id: "no1", text: "【最優先】最南端の標柱＋開聞岳をホームから撮影" },
+            { id: "no2", text: "黄色いポストと幸せの鐘を撮影" },
+            { id: "no3", text: "（余裕があれば）久太郎で到着証明書110円を入手" }
+          ],
+          links: [
+            { title: "鹿児島県観光サイト 西大山駅", url: "https://www.kagoshima-kankou.com/guide/50904" },
+            { title: "いぶすき観光ネット 西大山駅", url: "https://www.ibusuki.or.jp/tourism/view/jrnishioyama/" }
+          ]
+        },
+        {
+          id: "spot-bandokorobana",
+          day: 2,
+          timePlan: "09:55〜10:10 (15分)",
+          name: "番所鼻自然公園",
+          subtitle: "開聞岳と天然の岩礁「海の池」の絶景",
+          category: "海岸景勝地",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Bandokorobana_Nature_Park_Kaimondake.jpg/800px-Bandokorobana_Nature_Park_Kaimondake.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県南九州市頴娃町別府5202",
+          lat: "31.2393",
+          lng: "130.4357",
+          parking: "園内無料駐車場あり。西大山駅から国道226号方面へ約25分。",
+          description: "伊能忠敬が「天下の絶景」と称賛した景勝地。滞在15分のため、①開聞岳と東シナ海の広角写真、②火山活動と浸食でできた岩礁「海の池」、③鳴らす回数で願いが変わる「幸せの鐘（吉鐘）」を優先。\n※足元の岩場や波に注意し、無理に海際へ下りないこと。",
+          youtubeList: [
+            { 
+              id: "tG2j-vlgTsE", 
+              title: "南九州市頴娃町 番所鼻自然公園と海の池・開聞岳の絶景", 
+              tag: "天下の絶景", 
+              note: "伊能忠敬が称えた天然の岩礁「海の池」と開聞岳のパノラマ" 
+            },
+            { 
+              id: "GRK1aC8fcHY", 
+              title: "番所鼻自然公園 幸せの鐘（吉鐘）の鳴らし方", 
+              tag: "幸せの鐘", 
+              note: "回数によって願いが変わる鐘と展望スペースの見どころ" 
+            }
+          ],
+          checklist: [
+            { id: "bd1", text: "海の池と開聞岳の絶景広角ショットを撮影" },
+            { id: "bd2", text: "番所鼻の「幸せの鐘（吉鐘）」を鳴らす" }
+          ],
+          links: [
+            { title: "鹿児島県観光サイト 番所鼻自然公園", url: "https://www.kagoshima-kankou.com/guide/10649" }
+          ]
+        },
+        {
+          id: "spot-kamafuta",
+          day: 2,
+          timePlan: "10:20〜10:40 (20分)",
+          name: "釜蓋神社（射楯兵主神社）",
+          subtitle: "頭に釜の蓋を載せて歩く名物「釜蓋願掛け」",
+          category: "神社・願掛け",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Kamafuta_Shrine_2019.jpg/800px-Kamafuta_Shrine_2019.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県南九州市頴娃町別府6827",
+          lat: "31.2427",
+          lng: "130.4190",
+          parking: "釜蓋神社の駐車場を利用。番所鼻自然公園から車で約10分。",
+          description: "武の神様・勝負運のパワースポット。名物の「釜蓋願掛け」は頭に釜の蓋を載せ、鳥居から拝殿まで落とさず歩ければ願いが叶うと言われます。\n神社裏手の「希望の岬」から開聞岳と海を見渡す景色や、釜蓋ベンチも撮影候補！",
+          youtubeList: [
+            { 
+              id: "BI8hvU6oTXk", 
+              title: "【4K】釜蓋神社（射楯兵主神社）勝負運パワースポット", 
+              tag: "公式参拝案内", 
+              note: "スポーツ選手や芸能人も訪れる名物願掛けの参拝風景" 
+            },
+            { 
+              id: "d5IfkuW0Vpk", 
+              title: "釜の蓋を頭に？！釜蓋神社 願掛け体験レポート", 
+              tag: "願掛け体験", 
+              note: "鳥居から拝殿まで蓋を落とさずに歩く実際の様子とコツ" 
+            },
+            { 
+              id: "mqyaEHdy1hM", 
+              title: "釜蓋神社の裏手「希望の岬」から見る開聞岳と東シナ海", 
+              tag: "絶景スポット", 
+              note: "神社裏手の岬に設置された釜蓋ベンチと絶景の撮影ポイント" 
+            },
+            { 
+              id: "tG2j-vlgTsE", 
+              title: "頴娃町海岸ルート（番所鼻〜釜蓋神社）ドライブルポ", 
+              tag: "周辺ルート", 
+              note: "番所鼻から釜蓋神社への移動感と周辺の風景" 
+            }
+          ],
+          checklist: [
+            { id: "km1", text: "頭に釜の蓋を載せる「釜蓋願掛け」に挑戦！" },
+            { id: "km2", text: "裏手の「希望の岬」から開聞岳を撮影" }
+          ],
+          links: [
+            { title: "鹿児島県観光サイト 釜蓋神社", url: "https://www.kagoshima-kankou.com/guide/50902" }
+          ]
+        },
+        {
+          id: "spot-chiran",
+          day: 2,
+          timePlan: "12:00〜12:55 (55分)",
+          name: "知覧武家屋敷庭園群",
+          subtitle: "薩摩の小京都！生垣と石垣・国指定名勝7庭園",
+          category: "歴史・庭園散策",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Chiran-Fumoto_Samurai_Residences_Street.jpg/800px-Chiran-Fumoto_Samurai_Residences_Street.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県南九州市知覧町郡13731-1",
+          lat: "31.3789",
+          lng: "130.4468",
+          parking: "周辺駐車場あり。入園料：大人530円/人（3名で1,590円）、開園9:00〜17:00。",
+          description: "吹上庵での昼食（11:15〜12:00）の後、55分間で散策。\n全7庭園すべてを丁寧に見るには時間が限られるため、美しい石垣・生垣の通りと、母ヶ岳を借景にした代表的な2〜3庭園に絞って見学・撮影するのがおすすめ。無料Wi-Fi音声ガイドあり。",
+          youtubeList: [
+            { 
+              id: "ECB0L6qHxMU", 
+              title: "【4K散策】薩摩の小京都 知覧武家屋敷通りと名勝庭園", 
+              tag: "武家屋敷散策", 
+              note: "整然と刈り込まれた生垣と石垣が続く美しい通りの様子" 
+            },
+            { 
+              id: "9WigqvCWWbE", 
+              title: "知覧武家屋敷 枯山水庭園と母ヶ岳の借景美を味わう", 
+              tag: "庭園鑑賞ガイド", 
+              note: "母ヶ岳を取り込む借景庭園の構造や石組みの見どころ解説" 
+            }
+          ],
+          checklist: [
+            { id: "ch1", text: "整然と刈り込まれた生垣・石垣・腕木門の通りを撮影" },
+            { id: "ch2", text: "名勝庭園（2〜3庭園を厳選）の借景を見学" }
+          ],
+          links: [
+            { title: "知覧武家屋敷庭園 公式サイト", url: "https://chiran-bukeyashiki.com/" },
+            { title: "南九州市 公式案内ページ", url: "https://www.city.minamikyushu.lg.jp/soshikikarasagasu/shokokankoka/kankosuisan/1/293.html" },
+            { title: "県観光サイト紹介映像ページ", url: "https://www.kagoshima-kankou.com/movie/52554" }
+          ]
+        },
+        {
+          id: "spot-senganen",
+          day: 2,
+          timePlan: "14:00〜15:30 (90分固定)",
+          name: "仙巌園（庭園・御殿・桜島撮影）",
+          subtitle: "島津家別邸！庭園と御殿を90分じっくり見学",
+          category: "世界遺産・名勝",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Sengan-en2.jpg/800px-Sengan-en2.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市吉野町9700-1",
+          lat: "31.6176",
+          lng: "130.5772",
+          parking: "普通車 500円/回。知覧から指宿スカイライン等を経由して約65分。",
+          description: "90分をしっかり確保！尚古集成館まで回る時間は基本的にないため、庭園と御殿に集中します。\n【時間配分目安】入園10分 → 庭園・桜島借景写真45分 → 御殿見学25分 → お土産・退園10分。",
+          youtubeList: [],
+          checklist: [
+            { id: "sg1", text: "桜島を築山・錦江湾を池に見立てた庭園で記念撮影" },
+            { id: "sg2", text: "島津家の暮らしが伝わる「御殿」を見学（約25分）" },
+            { id: "sg3", text: "名物「両棒餅（ぢゃんぼもち）」や薩摩切子をチェック" }
+          ],
+          links: [
+            { title: "名勝 仙巌園 公式サイト", url: "https://www.senganen.jp/" }
+          ]
+        },
+        {
+          id: "spot-shiroyama",
+          day: 2,
+          timePlan: "15:45〜16:05 (20分)",
+          name: "城山公園展望台",
+          subtitle: "桜島と鹿児島市街地を一望する優先スポット",
+          category: "定番展望台",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kagoshima_city_and_Sakurajima_from_Shiroyama.jpg/800px-Kagoshima_city_and_Sakurajima_from_Shiroyama.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市城山町22-13",
+          lat: "31.5997",
+          lng: "130.5508",
+          parking: "城山展望台 無料駐車場を利用（台数限りあり）。仙巌園から車で約15分。",
+          description: "確実に見る優先スポット！周辺の長距離徒歩周回はせず、展望台からの桜島・市街地のパノラマ撮影に20分集中します。",
+          youtubeList: [],
+          checklist: [
+            { id: "sy1", text: "夕方の光に染まる桜島と鹿児島市街地を撮影" }
+          ],
+          links: [
+            { title: "鹿児島市観光ナビ 城山展望台", url: "https://www.kagoshima-yokanavi.jp/spot/10016" }
+          ]
+        },
+        {
+          id: "spot-saigo-cave",
+          day: 2,
+          timePlan: "16:05〜16:25 (移動+撮影20分)",
+          name: "西郷隆盛洞窟",
+          subtitle: "西南戦争最後の5日間を過ごした司令部跡",
+          category: "西郷どん史跡",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Saigo_Cave_Kagoshima.jpg/800px-Saigo_Cave_Kagoshima.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市城山町21",
+          lat: "31.6022",
+          lng: "130.5535",
+          parking: "指定の一般車向け駐車区画を利用（※バス停・路肩駐車は厳禁）。",
+          description: "城山展望台から車で下り、短時間撮影（移動・駐車込み20分枠）。もし前の予定が押している場合はここを短縮対象にして調整します。",
+          youtubeList: [],
+          checklist: [
+            { id: "sc1", text: "洞窟前から手早く記念撮影" }
+          ],
+          links: []
+        },
+        {
+          id: "spot-saigo-statue",
+          day: 2,
+          timePlan: "16:25〜16:45 (移動+撮影20分)",
+          name: "西郷隆盛銅像",
+          subtitle: "近隣コインPに停めて正面から写真撮影",
+          category: "西郷どん象徴",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Saigo_Takamori_Statue_Kagoshima_2021.jpg/800px-Saigo_Takamori_Statue_Kagoshima_2021.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市城山町4-36",
+          lat: "31.5967",
+          lng: "130.5574",
+          parking: "近隣の合法な有料Pへ（候補：セラ602駐車場 30分150円）。※路上違法駐車は厳禁！",
+          description: "軍服姿の堂々たる西郷どん銅像。必ず近隣の有料駐車場（セラ602駐車場など）に停めて、正面の撮影スポットから記念写真を撮ります。",
+          youtubeList: [],
+          checklist: [
+            { id: "ss1", text: "セラ602駐車場等に停めて正面から銅像を撮影" }
+          ],
+          links: []
+        },
+        {
+          id: "spot-kagoshima-chuo",
+          day: 2,
+          timePlan: "17:00〜17:15 (15分)",
+          name: "鹿児島中央駅",
+          subtitle: "大観覧車アミュランと駅舎外観・コンコース見学",
+          category: "ランドマーク",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Kagoshima-Chuo_Station_East_Exit_Amuran.jpg/800px-Kagoshima-Chuo_Station_East_Exit_Amuran.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県鹿児島市中央町1-1",
+          lat: "31.5838",
+          lng: "130.5417",
+          parking: "アミュプラザ鹿児島駐車場（通常30分200円）。17:15には空港レンタカー店へ出発！",
+          description: "滞在15分のため、改札内（新幹線ホーム）への入場はせず、駅舎外観やコンコースの短時間見学・記念撮影に集中します。お土産買い物は鹿児島空港に集約し、17:15には鹿児島ICから高速で空港へ向かいます。",
+          youtubeList: [],
+          checklist: [
+            { id: "kc1", text: "駅舎外観・アミュランを見上げて記念撮影" },
+            { id: "kc2", text: "【厳守】17:15にワンズレンタカー空港店へ出発（高速利用）" }
+          ],
+          links: []
+        }
+      ],
+
+      // ==================== 🚗 移動・レンタカー・フライト・フェリー ====================
+      drive: [
+        {
+          id: "drv-flight",
+          title: "✈️ ソラシドエア 往復フライト（3名）",
+          subtitle: "往路 SNA0071 / 復路 SNA0080（ANAじゃらんパック）",
+          tag: "航空便・保安検査",
+          address: "鹿児島空港（鹿児島県霧島市溝辺町麓822）",
+          lat: "31.8034",
+          lng: "130.7194",
+          memo: "【往路 12/3(木)】羽田 07:25発 → 鹿児島 09:30着（SNA0071便）\n【復路 12/4(金)】鹿児島 20:20発 → 羽田 21:55着（SNA0080便）\n※出発24時間前からオンラインチェックイン可能。復路は19:35までに保安検査場へ！",
+          navName: "鹿児島空港"
+        },
+        {
+          id: "drv-rentacar",
+          title: "🚗 ワンズレンタカー 鹿児島空港店",
+          subtitle: "到着後 080-4935-5511 へ電話して送迎依頼",
+          tag: "レンタカー発着・給油",
+          address: "鹿児島県霧島市溝辺町麓2660",
+          lat: "31.7972",
+          lng: "130.7259",
+          phone: "080-4935-5511",
+          memo: "【貸出】12/3(木) 10:00（コンパクト AT・禁煙・ナビ・ETC・免責込）\n【返却目標】12/4(金) 18:10〜18:25に給油＆返却完了！（予約上の期限は19:20）\n※空港送迎スタッフは常駐ではないため、空港到着後すぐに電話連絡すること。返却前の指定給油所ルールを出発時に必ず確認！",
+          navName: "ワンズレンタカー 鹿児島空港店"
+        },
+        {
+          id: "drv-ferry",
+          title: "⛴️【最重要】桜島フェリー（12/3 16:25発）",
+          subtitle: "桜島港 16:25発 → 鹿児島港 16:43頃着（航行15分）",
+          tag: "1日目・最重要時刻",
+          address: "桜島港フェリーターミナル（鹿児島市桜島横山町）",
+          lat: "31.5906",
+          lng: "130.5960",
+          memo: "【厳守】道の駅桜島を16:00に出発し、16:05〜16:25に乗船待機レーンへ並ぶ（先着順）。\n【料金】大人3人＋レンタカー1台（車両運賃に運転手1名分含む）。桜島側の料金所で支払い。\n【下船後】鹿児島市街は観光せず、そのまま国道226号/指宿スカイラインで指宿フェニックスホテルへ直行（目標18:30着）。",
+          navName: "桜島港フェリーターミナル"
+        },
+        {
+          id: "drv-parking-saigo",
+          title: "🅿️ セラ602駐車場（西郷隆盛銅像の駐車候補）",
+          subtitle: "2日目 16:25〜16:45 銅像撮影時のコインパーキング",
+          tag: "有料駐車場候補",
+          address: "鹿児島県鹿児島市山下町12-12",
+          lat: "31.5957",
+          lng: "130.5572",
+          memo: "西郷隆盛銅像のすぐ近く。30分150円の案内（現地で要確認）。銅像周辺は路上駐取締りが厳しいため、必ず合法な駐車場に停めてから撮影すること。",
+          navName: "セラ602"
+        }
+      ],
+
+      // ==================== 🍲 食事・宿泊・温泉 ====================
+      food: [
+        {
+          id: "food-phoenix",
+          day: 1,
+          timePlan: "18:30着 / 砂むし18:40 / 夕食19:30",
+          name: "指宿温泉 指宿フェニックスホテル",
+          subtitle: "名物「砂むし温泉」＆ 黒牛・黒豚会席（飲み放題90分）",
+          category: "宿泊・砂むし・夕食",
+          image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県指宿市十二町4320",
+          lat: "31.2173",
+          lng: "130.6521",
+          phone: "0993-23-4111",
+          parking: "ホテル無料駐車場あり。鹿児島港から直行で約107分（18:30到着目標）。",
+          description: "【1日目夜の流れ】\n・18:30 チェックイン\n・18:40〜19:20 先に名物「砂むし温泉」を利用・入浴\n・19:30〜21:00 夕食「黒牛・黒豚会席（フリードリンク90分制）」\n\n【2日目朝の流れ】\n・07:00〜08:00 朝食（受付7:00開始に合わせて会場へ）\n・08:00〜08:30 精算・チェックアウト → 8:30長崎鼻へ出発！",
+          youtubeList: [
+            { 
+              id: "kxmR19wGjXA", 
+              title: "指宿フェニックスホテル 館内「砂むし温泉」とオーシャンビュー", 
+              tag: "砂むし温泉案内", 
+              note: "雨天でも利用できる館内砂むし温泉とリゾート客室の様子" 
+            },
+            { 
+              id: "7L870rhgHyg", 
+              title: "指宿フェニックスホテル 黒牛・黒豚会席と朝食バイキング", 
+              tag: "料理・朝食", 
+              note: "90分フリードリンク付き会席料理と朝食会場のレポート" 
+            }
+          ],
+          checklist: [
+            { id: "ph1", text: "18:40〜 砂むし温泉を体験してサッパリ汗を流す" },
+            { id: "ph2", text: "19:30〜 黒牛・黒豚会席＆90分フリードリンクを満喫" },
+            { id: "ph3", text: "翌朝7:00ぴったりに朝食会場へ入る" }
+          ],
+          links: [
+            { title: "指宿フェニックスホテル 公式料理案内", url: "https://phoenixhotel.co.jp/cuisine/" }
+          ]
+        },
+        {
+          id: "food-fukiagean",
+          day: 2,
+          timePlan: "11:15〜12:00 (45分)",
+          name: "そば茶屋吹上庵 知覧武家屋敷店",
+          subtitle: "水車が目印！鹿児島名物の甘いツユと手打ちそば",
+          category: "2日目ランチ第一候補",
+          image: "https://images.unsplash.com/photo-1519984388953-d2406bc725e1?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県南九州市知覧町郡897-0392",
+          lat: "31.3775",
+          lng: "130.4435",
+          phone: "0993-83-1118",
+          parking: "店舗駐車場あり。釜蓋神社から車で約35分。",
+          description: "知覧武家屋敷のすぐ近くにある大人気店。11:15〜12:00の45分間で昼食をとり、12:00から武家屋敷庭園の散策（55分）へ向かいます。\n※万が一大混雑している場合は、武家屋敷内の「高城庵」も第2候補。",
+          youtubeList: [],
+          checklist: [
+            { id: "fk1", text: "名物の黒豚そばや七段そば、食べ放題の大根漬物を味わう" }
+          ],
+          links: [
+            { title: "そば茶屋吹上庵 知覧武家屋敷店 公式", url: "https://fukiagean.jp/access/chiran/" }
+          ]
+        },
+        {
+          id: "food-airport",
+          day: 2,
+          timePlan: "18:35〜19:35 (夕食40分+土産20分)",
+          name: "鹿児島空港 夕食＆お土産タイム",
+          subtitle: "フライト前に黒豚・鶏飯などの夕食とラスト買い物",
+          category: "2日目ディナー・空港",
+          image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Kagoshima_Airport_Terminal_Building.jpg/800px-Kagoshima_Airport_Terminal_Building.jpg",
+          fallbackImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80",
+          address: "鹿児島県霧島市溝辺町麓822（国内線ターミナル）",
+          lat: "31.8034",
+          lng: "130.7194",
+          parking: "ワンズレンタカー送迎車で18:35到着予定。",
+          description: "【時間配分】\n・18:35〜19:15 空港レストランで夕食（40分）\n・19:15〜19:35 空港売店でお土産購入（20分）\n・19:35〜 保安検査場を通過して搭乗口へ（20:20発 SNA0080便）",
+          youtubeList: [],
+          checklist: [
+            { id: "ap1", text: "19:15までに夕食を済ませる（ラストオーダー注意）" },
+            { id: "ap2", text: "19:35には保安検査場へ移動開始" }
+          ],
+          links: [
+            { title: "鹿児島空港 グルメ・ショップ一覧", url: "https://www.koj-ab.co.jp/shops/" }
+          ]
+        }
+      ],
+
+      // ==================== 🎁 買い物・お土産リスト ====================
+      souvenir: [
+        {
+          id: "souv-sakurajima",
+          item: "桜島小みかん・桜島大根関連グルメ",
+          store: "【1日目 15:20】道の駅 桜島 火の島めぐみ館",
+          price: "40分確保",
+          memo: "小みかんスパイス、桜島大根の漬物などご当地ならではの特産品。直売所は17:00までのため1日目15:20〜16:00に購入！"
+        },
+        {
+          id: "souv-nishioyama",
+          item: "JR日本最南端の駅 到着証明書＆黄色いポスト絵はがき",
+          store: "【2日目 09:15】西大山駅横「かいもん市場 久太郎」",
+          price: "到着証明 110円",
+          memo: "撮影（標柱＋開聞岳・黄色いポスト）を終えて時間に余裕があれば立ち寄り。"
+        },
+        {
+          id: "souv-senganen",
+          item: "仙巌園限定品・薩摩切子・両棒餅（ぢゃんぼもち）",
+          store: "【2日目 14:00】仙巌園 売店",
+          price: "退園前10分枠",
+          memo: "島津家家紋グッズや焼きたてのぢゃんぼ餅など。"
+        },
+        {
+          id: "souv-airport",
+          item: "かすたどん・さつま揚げ・かるかん・芋焼酎",
+          store: "【2日目 19:15】鹿児島空港 2階お土産街",
+          price: "20分集中",
+          memo: "鹿児島中央駅では買い物をせず、空港の20分枠（19:15〜19:35）に定番土産を集約してまとめ買い！"
+        }
+      ]
+    };
+
+    // チェック状態の管理
+    let checkedItems = JSON.parse(localStorage.getItem('kagoshima_checklist_v2') || '{}');
+    let currentTab = 'spots';
+    let currentDayFilter = 'all'; // 'all' | 1 | 2
+
+    function toggleCheck(id) {
+      checkedItems[id] = !checkedItems[id];
+      localStorage.setItem('kagoshima_checklist_v2', JSON.stringify(checkedItems));
+      
+      const el = document.getElementById(`check-box-${id}`);
+      const textEl = document.getElementById(`check-text-${id}`);
+      if (el && textEl) {
+        if (checkedItems[id]) {
+          el.className = el.className.includes('circle') 
+            ? "ph-fill ph-check-circle text-satsuma-red text-2xl shrink-0"
+            : "ph-fill ph-check-square text-satsuma-red text-lg shrink-0";
+          textEl.classList.add('line-through', 'text-slate-400');
+        } else {
+          el.className = el.className.includes('circle')
+            ? "ph-bold ph-circle text-slate-300 text-2xl shrink-0"
+            : "ph-bold ph-square text-slate-300 text-lg shrink-0";
+          textEl.classList.remove('line-through', 'text-slate-400');
+        }
+      }
+    }
+
+    function setDayFilter(day) {
+      currentDayFilter = day;
+      renderContent();
+    }
+
+    function switchTab(tabKey) {
+      currentTab = tabKey;
+      const tabs = ['spots', 'drive', 'food', 'souvenir'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabKey) {
+          btn.className = "flex-1 flex flex-col items-center py-1 text-satsuma-red font-bold transition-colors";
+        } else {
+          btn.className = "flex-1 flex flex-col items-center py-1 text-slate-400 font-medium transition-colors";
+        }
+      });
+
+      renderContent();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ナビ用ディープリンク作成ヘルパー
+    function generateNavButtons(name, lat, lng, address) {
+      const q = encodeURIComponent(name || address);
+      const googleMapUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
+      const yahooNavUrl = (lat && lng) 
+        ? `yjcarnavi://navi/select?lat=${lat}&lon=${lng}&name=${q}` 
+        : `https://map.yahoo.co.jp/search?q=${q}`;
+      const appleMapUrl = `https://maps.apple.com/?q=${q}`;
+
+      return `
+        <a href="${googleMapUrl}" target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center justify-center py-2 px-1 bg-white rounded-xl border border-slate-200 text-slate-700 hover:border-blue-400 active:scale-95 transition-all shadow-xs">
+          <i class="ph-bold ph-google-logo text-blue-600 text-lg mb-0.5"></i>
+          <span class="text-[10px] font-bold">Googleマップ</span>
+        </a>
+        <a href="${yahooNavUrl}" target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center justify-center py-2 px-1 bg-white rounded-xl border border-slate-200 text-slate-700 hover:border-red-400 active:scale-95 transition-all shadow-xs">
+          <i class="ph-bold ph-car text-red-500 text-lg mb-0.5"></i>
+          <span class="text-[10px] font-bold">Yahoo!カーナビ</span>
+        </a>
+        <a href="${appleMapUrl}" target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center justify-center py-2 px-1 bg-white rounded-xl border border-slate-200 text-slate-700 hover:border-slate-400 active:scale-95 transition-all shadow-xs">
+          <i class="ph-bold ph-apple-logo text-slate-800 text-lg mb-0.5"></i>
+          <span class="text-[10px] font-bold">Appleマップ</span>
+        </a>
+      `;
+    }
+
+    // メイン描画処理
+    function renderContent() {
+      const container = document.getElementById('content-container');
+      container.innerHTML = '';
+
+      if (currentTab === 'spots' || currentTab === 'food') {
+        renderGridCards(container, currentTab);
+      } else if (currentTab === 'drive') {
+        renderDriveList(container);
+      } else if (currentTab === 'souvenir') {
+        renderSouvenirList(container);
+      }
+    }
+
+    // 【1】名所＆食事・宿：サムネイルグリッドUI（Day1 / Day2 フィルター付き）
+    function renderGridCards(container, tabKey) {
+      const rawList = KAGOSHIMA_DATA[tabKey] || [];
+      const list = currentDayFilter === 'all' 
+        ? rawList 
+        : rawList.filter(item => item.day === currentDayFilter);
+
+      // 日程フィルターピル（名所タブのみ表示）
+      if (tabKey === 'spots') {
+        const filterBar = document.createElement('div');
+        filterBar.className = "flex items-center gap-1.5 bg-white p-1.5 rounded-2xl shadow-xs border border-amber-900/10";
+        const filters = [
+          { key: 'all', label: 'すべて (15)' },
+          { key: 1, label: '1日目: 霧島・桜島 (5)' },
+          { key: 2, label: '2日目: 指宿・知覧・市内 (10)' }
+        ];
+        filterBar.innerHTML = filters.map(f => {
+          const active = currentDayFilter === f.key;
+          return `
+            <button onclick="setDayFilter(${typeof f.key === 'string' ? `'${f.key}'` : f.key})"
+              class="flex-1 py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all ${active ? 'bg-satsuma-red text-white shadow-xs' : 'text-slate-500 hover:bg-slate-100'}">
+              ${f.label}
+            </button>
+          `;
+        }).join('');
+        container.appendChild(filterBar);
+      }
+
+      // ガイド見出し
+      const titleBar = document.createElement('div');
+      titleBar.className = "flex items-center justify-between px-1";
+      titleBar.innerHTML = `
+        <span class="text-xs font-bold text-slate-600">
+          ${tabKey === 'spots' ? '🌋 訪問スポット（タップで詳細＆動画）' : '🍲 宿泊・砂むし温泉・食事スポット'}
+        </span>
+        <span class="text-[10px] bg-red-100 text-satsuma-red px-2 py-0.5 rounded-full font-bold">
+          ${list.length} 件
+        </span>
+      `;
+      container.appendChild(titleBar);
+
+      // 2カラムグリッド（モバイルで押しやすい大判サムネイル）
+      const grid = document.createElement('div');
+      grid.className = tabKey === 'food' ? "grid grid-cols-1 gap-3" : "grid grid-cols-2 gap-3";
+
+      list.forEach(spot => {
+        const item = document.createElement('div');
+        item.className = "bg-white rounded-2xl overflow-hidden shadow-sm border border-amber-900/10 cursor-pointer active:scale-98 transition-all hover:shadow-md flex flex-col";
+        item.onclick = () => openModal(spot);
+
+        const hasVideo = spot.youtubeList && spot.youtubeList.length > 0;
+
+        item.innerHTML = `
+          <div class="relative w-full ${tabKey === 'food' ? 'h-40' : 'h-32'} bg-slate-200 overflow-hidden">
+            <img src="${spot.image}" alt="${spot.name}" class="w-full h-full object-cover"
+                 onerror="this.onerror=null; if('${spot.fallbackImage || ''}') this.src='${spot.fallbackImage}';">
+            <div class="absolute top-2 left-2 flex items-center gap-1">
+              <span class="bg-slate-900/80 text-amber-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded">
+                Day${spot.day}
+              </span>
+              <span class="bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded">
+                ${spot.category}
+              </span>
+            </div>
+            ${hasVideo ? `
+              <span class="absolute top-2 right-2 bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow">
+                <i class="ph-fill ph-youtube-logo"></i>
+                <span>動画×${spot.youtubeList.length}</span>
+              </span>
+            ` : ''}
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-2.5 pt-4 pb-1.5">
+              <span class="text-[10px] text-amber-200 font-bold block truncate">${spot.timePlan || ''}</span>
+            </div>
+          </div>
+          <div class="p-2.5 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-800 line-clamp-1">${spot.name}</h3>
+              <p class="text-[10px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">${spot.subtitle || spot.address}</p>
+            </div>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-satsuma-red font-bold">
+              <span>詳細・ナビ</span>
+              <i class="ph-bold ph-arrow-right text-xs"></i>
+            </div>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+
+      container.appendChild(grid);
+    }
+
+    // 【2】ドライブ・レンタカー・航路リスト
+    function renderDriveList(container) {
+      const banner = document.createElement('div');
+      banner.className = "bg-gradient-to-r from-satsuma-navy to-slate-800 text-white rounded-2xl p-4 shadow-sm space-y-1.5";
+      banner.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="ph-duotone ph-steering-wheel text-2xl text-amber-300"></i>
+            <h2 class="text-sm font-bold">移動・レンタカー・フェリー要項</h2>
+          </div>
+          <a href="tel:080-4935-5511" class="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow">
+            <i class="ph-fill ph-phone"></i>
+            <span>レンタカー送迎電話</span>
+          </a>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          ワンズレンタカー送迎連絡、16:25桜島フェリー乗船、各所の駐車場・ナビ起動をここに集約しています。
+        </p>
+      `;
+      container.appendChild(banner);
+
+      const list = KAGOSHIMA_DATA.drive || [];
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl p-4 shadow-sm border border-amber-900/10 space-y-3";
+        
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                ${item.tag}
+              </span>
+              <h3 class="text-sm font-bold text-slate-900 mt-1">${item.title}</h3>
+              <p class="text-xs text-satsuma-red font-bold mt-0.5">${item.subtitle}</p>
+            </div>
+            ${item.phone ? `
+              <a href="tel:${item.phone}" class="shrink-0 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1">
+                <i class="ph-fill ph-phone-call"></i>
+                <span>発信</span>
+              </a>
+            ` : ''}
+          </div>
+
+          <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl whitespace-pre-line leading-relaxed border border-slate-100">${item.memo}</p>
+
+          <div class="space-y-1">
+            <span class="text-[10px] font-bold text-slate-500">ナビを起動する:</span>
+            <div class="grid grid-cols-3 gap-2">
+              ${generateNavButtons(item.navName || item.title, item.lat, item.lng, item.address)}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 【3】お土産・買い物リスト
+    function renderSouvenirList(container) {
+      const banner = document.createElement('div');
+      banner.className = "bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-950 flex items-center justify-between";
+      banner.innerHTML = `
+        <div>
+          <strong class="font-bold">スケジュール連動・買い物＆お土産リスト</strong>
+          <p class="text-[11px] text-amber-800 mt-0.5">道の駅桜島(40分)と鹿児島空港(20分)が二大買い物タイム！</p>
+        </div>
+        <span class="text-2xl">🎁</span>
+      `;
+      container.appendChild(banner);
+
+      const list = KAGOSHIMA_DATA.souvenir || [];
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-amber-900/10 space-y-2";
+        const isBought = !!checkedItems[item.id];
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 id="check-text-${item.id}" class="text-xs font-bold text-slate-900 ${isBought ? 'line-through text-slate-400' : ''}">
+                ${item.item}
+              </h3>
+              <p class="text-[11px] text-satsuma-red font-bold mt-0.5">${item.store}（${item.price}）</p>
+            </div>
+            <button onclick="toggleCheck('${item.id}')" class="shrink-0 p-1">
+              <i id="check-box-${item.id}" class="${isBought ? 'ph-fill ph-check-circle text-satsuma-red' : 'ph-bold ph-circle text-slate-300'} text-2xl"></i>
+            </button>
+          </div>
+          ${item.memo ? `<p class="text-[11px] text-slate-600 bg-amber-50/50 p-2 rounded-lg">💡 ${item.memo}</p>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // モーダル（詳細シート）の展開・複数YouTube動画切替
+    // ==========================================
+    // モーダル（詳細シート）の展開・リッチYouTubeカード表示
+    // ==========================================
+    function openModal(spot) {
+      document.getElementById('modal-title').textContent = spot.name;
+      document.getElementById('modal-address').querySelector('span').textContent = spot.address;
+      document.getElementById('modal-category').textContent = spot.category;
+      document.getElementById('modal-day-badge').textContent = `Day ${spot.day} (${spot.day === 1 ? '12/3 木' : '12/4 金'})`;
+      document.getElementById('modal-time-badge').textContent = spot.timePlan || '';
+      
+      const modalImg = document.getElementById('modal-image');
+      modalImg.src = spot.image;
+      modalImg.onerror = () => {
+        modalImg.onerror = null;
+        if (spot.fallbackImage) modalImg.src = spot.fallbackImage;
+      };
+
+      document.getElementById('modal-description').textContent = spot.description;
+
+      // 駐車場情報
+      const parkingEl = document.getElementById('modal-parking');
+      if (spot.parking) {
+        parkingEl.classList.remove('hidden');
+        parkingEl.querySelector('span').textContent = `【駐車・経路】${spot.parking}`;
+      } else {
+        parkingEl.classList.add('hidden');
+      }
+
+      // 電話発信ボタン
+      const phoneContainer = document.getElementById('modal-phone-btn');
+      if (spot.phone) {
+        phoneContainer.innerHTML = `
+          <a href="tel:${spot.phone}" class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+            <i class="ph-fill ph-phone"></i>
+            <span>${spot.phone}</span>
+          </a>
+        `;
+      } else {
+        phoneContainer.innerHTML = '';
+      }
+
+      // カーナビボタン
+      const navContainer = document.getElementById('modal-nav-buttons');
+      navContainer.innerHTML = generateNavButtons(spot.name, spot.lat, spot.lng, spot.address);
+
+      // チェックリスト
+      const checkContainer = document.getElementById('modal-checklist-container');
+      checkContainer.innerHTML = '';
+      if (spot.checklist && spot.checklist.length > 0) {
+        checkContainer.innerHTML = `
+          <div class="text-xs font-bold text-slate-700 flex items-center gap-1 mt-2">
+            <i class="ph-bold ph-check-square-offset text-satsuma-red"></i>
+            <span>優先ポイント・ミッション</span>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-2.5 space-y-2 border border-slate-100">
+            ${spot.checklist.map(c => {
+              const isChecked = !!checkedItems[c.id];
+              return `
+                <div class="flex items-start gap-2 cursor-pointer select-none" onclick="toggleCheck('${c.id}')">
+                  <i id="check-box-${c.id}" class="${isChecked ? 'ph-fill ph-check-square text-satsuma-red' : 'ph-bold ph-square text-slate-300'} text-lg shrink-0 mt-0.5"></i>
+                  <span id="check-text-${c.id}" class="text-xs text-slate-700 leading-snug ${isChecked ? 'line-through text-slate-400' : ''}">${c.text}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      // YouTube（タイトル・サムネイル付き動画カード ＆ アプリ直行）
+      const ytContainer = document.getElementById('modal-youtube-container');
+      ytContainer.innerHTML = '';
+      const videos = spot.youtubeList || [];
+
+      if (videos.length > 0) {
+        ytContainer.innerHTML = `
+          <div class="text-xs font-bold text-slate-700 flex items-center justify-between mt-3 mb-1.5">
+            <span class="flex items-center gap-1">
+              <i class="ph-fill ph-youtube-logo text-rose-600 text-base"></i>
+              <span>参考YouTube動画（${videos.length}本・タップで再生）</span>
+            </span>
+            <span class="text-[10px] text-slate-500">YouTubeアプリ起動</span>
+          </div>
+          <div class="space-y-2.5">
+            ${videos.map((v, idx) => `
+              <a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener noreferrer"
+                 class="group block bg-slate-50 hover:bg-rose-50/40 rounded-2xl p-2 border border-slate-200 hover:border-rose-300 transition-all active:scale-98 shadow-xs">
+                <div class="flex gap-2.5 items-center">
+                  <!-- サムネイル画像 -->
+                  <div class="relative w-28 h-18 bg-black rounded-xl overflow-hidden shrink-0 shadow-inner">
+                    <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" alt="${v.title}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/25 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                      <div class="w-7 h-7 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-md">
+                        <i class="ph-fill ph-play text-xs ml-0.5"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- タイトルと見どころ解説 -->
+                  <div class="flex-1 min-w-0 pr-1">
+                    <span class="inline-block text-[9px] font-bold text-rose-700 bg-rose-100/70 px-1.5 py-0.5 rounded">
+                      ${v.tag || `動画 ${idx + 1}`}
+                    </span>
+                    <h4 class="text-xs font-extrabold text-slate-900 group-hover:text-rose-600 line-clamp-2 mt-0.5 leading-snug transition-colors">
+                      ${v.title}
+                    </h4>
+                    ${v.note ? `<p class="text-[10px] text-slate-500 line-clamp-1 mt-1">💡 ${v.note}</p>` : ''}
+                  </div>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // 関連Webサイトリンク
+      const linkContainer = document.getElementById('modal-links-container');
+      linkContainer.innerHTML = '';
+      if (spot.links && spot.links.length > 0) {
+        linkContainer.innerHTML = `
+          <div class="text-xs font-bold text-slate-700 mt-3 mb-1">公式・関連Webサイト</div>
+          <div class="flex flex-wrap gap-2">
+            ${spot.links.map(l => `
+              <a href="${l.url}" target="_blank" rel="noopener noreferrer" 
+                 class="inline-flex items-center gap-1 text-[11px] font-bold text-satsuma-deepRed bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-200">
+                <i class="ph-bold ph-arrow-square-out"></i>
+                <span>${l.title}</span>
+              </a>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      document.getElementById('modal-youtube-container').innerHTML = '';
+    }
+
+    document.getElementById('detail-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'detail-modal') {
+        closeModal();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderContent();
+    });
+  </script>
+</body>
+</html>
